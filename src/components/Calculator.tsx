@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { Calculator as CalculatorIcon, Activity, Weight, Ruler, Calendar } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../translations';
 
 interface CalculatorFormData {
-  age: number;
-  weight: number;
-  height: number;
+  age: number | '';
+  weight: number | '';
+  height: number | '';
   gender: 'male' | 'female';
   activity: string;
   goal: string;
 }
 
 const Calculator: React.FC = () => {
+  const { language } = useLanguage();
+  const t = translations[language];
   const [formData, setFormData] = useState<CalculatorFormData>({
     age: 25,
     weight: 70,
@@ -23,10 +27,15 @@ const Calculator: React.FC = () => {
 
   const calculateCalories = () => {
     let bmr;
+    // Convert empty values to 0 for calculation
+    const age = formData.age === '' ? 0 : formData.age;
+    const weight = formData.weight === '' ? 0 : formData.weight;
+    const height = formData.height === '' ? 0 : formData.height;
+
     if (formData.gender === 'male') {
-      bmr = 88.362 + (13.397 * formData.weight) + (4.799 * formData.height) - (5.677 * formData.age);
+      bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
     } else {
-      bmr = 447.593 + (9.247 * formData.weight) + (3.098 * formData.height) - (4.330 * formData.age);
+      bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
     }
 
     const activityMultipliers = {
@@ -62,12 +71,12 @@ const Calculator: React.FC = () => {
             <div>
               <label className="flex items-center text-gray-300 mb-2">
                 <Calendar className="w-5 h-5 mr-2" />
-                Возраст
+                {t.age}
               </label>
               <input
                 type="number"
                 value={formData.age}
-                onChange={(e) => setFormData({...formData, age: Number(e.target.value)})}
+                onChange={(e) => setFormData({...formData, age: e.target.value === '' ? '' : Number(e.target.value)})}
                 className="w-full bg-gray-800 text-white rounded-lg p-3 focus:ring-2 focus:ring-red-500"
               />
             </div>
@@ -75,12 +84,12 @@ const Calculator: React.FC = () => {
             <div>
               <label className="flex items-center text-gray-300 mb-2">
                 <Weight className="w-5 h-5 mr-2" />
-                Вес (кг)
+                {t.weight}
               </label>
               <input
                 type="number"
                 value={formData.weight}
-                onChange={(e) => setFormData({...formData, weight: Number(e.target.value)})}
+                onChange={(e) => setFormData({...formData, weight: e.target.value === '' ? '' : Number(e.target.value)})}
                 className="w-full bg-gray-800 text-white rounded-lg p-3 focus:ring-2 focus:ring-red-500"
               />
             </div>
@@ -88,12 +97,12 @@ const Calculator: React.FC = () => {
             <div>
               <label className="flex items-center text-gray-300 mb-2">
                 <Ruler className="w-5 h-5 mr-2" />
-                Рост (см)
+                {t.height}
               </label>
               <input
                 type="number"
                 value={formData.height}
-                onChange={(e) => setFormData({...formData, height: Number(e.target.value)})}
+                onChange={(e) => setFormData({...formData, height: e.target.value === '' ? '' : Number(e.target.value)})}
                 className="w-full bg-gray-800 text-white rounded-lg p-3 focus:ring-2 focus:ring-red-500"
               />
             </div>
@@ -101,19 +110,19 @@ const Calculator: React.FC = () => {
 
           <div className="space-y-6">
             <div>
-              <label className="text-gray-300 mb-2 block">Пол</label>
+              <label className="text-gray-300 mb-2 block">{t.gender}</label>
               <div className="grid grid-cols-2 gap-4">
                 <button
                   className={`p-3 rounded-lg ${formData.gender === 'male' ? 'bg-red-500 text-white' : 'bg-gray-800 text-gray-300'}`}
                   onClick={() => setFormData({...formData, gender: 'male'})}
                 >
-                  Мужской
+                  {t.male}
                 </button>
                 <button
                   className={`p-3 rounded-lg ${formData.gender === 'female' ? 'bg-red-500 text-white' : 'bg-gray-800 text-gray-300'}`}
                   onClick={() => setFormData({...formData, gender: 'female'})}
                 >
-                  Женский
+                  {t.female}
                 </button>
               </div>
             </div>
@@ -121,31 +130,31 @@ const Calculator: React.FC = () => {
             <div>
               <label className="flex items-center text-gray-300 mb-2">
                 <Activity className="w-5 h-5 mr-2" />
-                Уровень активности
+                {t.activity}
               </label>
               <select
                 value={formData.activity}
                 onChange={(e) => setFormData({...formData, activity: e.target.value})}
                 className="w-full bg-gray-800 text-white rounded-lg p-3 focus:ring-2 focus:ring-red-500"
               >
-                <option value="sedentary">Сидячий образ жизни</option>
-                <option value="light">Легкая активность</option>
-                <option value="moderate">Умеренная активность</option>
-                <option value="active">Высокая активность</option>
-                <option value="veryActive">Очень высокая активность</option>
+                <option value="sedentary">{t.activityLevels.sedentary}</option>
+                <option value="light">{t.activityLevels.light}</option>
+                <option value="moderate">{t.activityLevels.moderate}</option>
+                <option value="active">{t.activityLevels.active}</option>
+                <option value="veryActive">{t.activityLevels.veryActive}</option>
               </select>
             </div>
 
             <div>
-              <label className="text-gray-300 mb-2 block">Цель</label>
+              <label className="text-gray-300 mb-2 block">{t.goal}</label>
               <select
                 value={formData.goal}
                 onChange={(e) => setFormData({...formData, goal: e.target.value})}
                 className="w-full bg-gray-800 text-white rounded-lg p-3 focus:ring-2 focus:ring-red-500"
               >
-                <option value="lose">Похудение</option>
-                <option value="maintain">Поддержание веса</option>
-                <option value="gain">Набор массы</option>
+                <option value="lose">{t.goals.lose}</option>
+                <option value="maintain">{t.goals.maintain}</option>
+                <option value="gain">{t.goals.gain}</option>
               </select>
             </div>
           </div>
@@ -156,13 +165,13 @@ const Calculator: React.FC = () => {
             onClick={calculateCalories}
             className="bg-red-500 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-red-600 transition-colors"
           >
-            Рассчитать
+            {t.calculate}
           </button>
 
           {result && (
             <div className="mt-8 p-6 bg-gray-800 rounded-xl">
-              <h2 className="text-2xl font-bold text-white mb-2">Ваша суточная норма калорий:</h2>
-              <p className="text-4xl font-bold text-red-500">{result} ккал</p>
+              <h2 className="text-2xl font-bold text-white mb-2">{t.dailyCalories}</h2>
+              <p className="text-4xl font-bold text-red-500">{result} {t.calories}</p>
             </div>
           )}
         </div>
